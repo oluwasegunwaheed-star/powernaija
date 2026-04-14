@@ -3,68 +3,81 @@ import { supabase } from './lib/supabaseClient'
 
 function InstallerDashboard() {
   const [requests, setRequests] = useState([])
+  const [quotes, setQuotes] = useState([])
   const [formData, setFormData] = useState({})
 
   useEffect(() => {
     fetchRequests()
+    fetchQuotes()
   }, [])
 
-  // 📥 Fetch all requests
+  // 📥 Fetch requests
   const fetchRequests = async () => {
     const { data, error } = await supabase
       .from('requests')
       .select('*')
       .order('created_at', { ascending: false })
 
-    if (error) {
-      console.log(error)
-    } else {
-      setRequests(data)
-    }
+    if (!error) setRequests(data)
   }
 
-  // 📝 Handle input per request
+  // 📥 Fetch quotes
+  const fetchQuotes = async () => {
+    const { data, error } = await supabase
+      .from('quotes')
+      .select('*')
+      .order('created_at', { ascending: false })
+
+    if (!error) setQuotes(data)
+  }
+
+  // 📝 Handle input
   const handleInputChange = (requestId, field, value) => {
-    setFormData({
-      ...formData,
+    setFormData((prev) => ({
+      ...prev,
       [requestId]: {
-        ...formData[requestId],
+        ...prev[requestId],
         [field]: value,
       },
-    })
+    }))
   }
 
-  // 📤 Submit quote WITH USER ID
+  // 📤 Submit quote (FINAL FIXED)
   const submitQuote = async (requestId) => {
     const data = formData[requestId]
+
+    console.log("FULL FORM DATA:", data)
+    console.log("TERMS VALUE:", data?.terms)
 
     if (!data || !data.price || !data.monthly || !data.timeline) {
       alert('Please fill all fields')
       return
     }
 
-    // 🔥 GET CURRENT LOGGED-IN USER
     const {
       data: { user },
-      error: userError,
     } = await supabase.auth.getUser()
 
-    console.log("CURRENT USER:", user)
-
-    if (userError || !user) {
+    if (!user) {
       alert('User not logged in')
       return
     }
 
-    // 🔥 INSERT QUOTE WITH USER ID
+    // 🔥 FORCE TERMS VALUE (guaranteed not NULL)
+    const termsValue = data?.terms?.trim() || "DEFAULT TERMS"
+
+    console.log("FINAL TERMS SENT:", termsValue)
+
     const { error } = await supabase.from('quotes').insert([
       {
         request_id: requestId,
         installer_name: 'SolarTech Ltd',
-        price: data.price,
-        monthly_plan: data.monthly,
+        price: Number(data.price),
+        monthly_plan: Number(data.monthly),
         timeline: data.timeline,
-        user_id: user.id, // ✅ FIXED HERE
+        terms: termsValue,
+        user_id: user.id,
+        status: 'pending',
       },
     ])
 
@@ -73,6 +86,13 @@ function InstallerDashboard() {
       alert('Error submitting quote')
     } else {
       alert('Quote submitted successfully!')
+      fetchQuotes()
+
+      // Reset form
+      setFormData((prev) => ({
+        ...prev,
+        [requestId]: {},
+      }))
     }
   }
 
@@ -80,15 +100,15 @@ function InstallerDashboard() {
     <div style={styles.container}>
       <h2>Installer Dashboard 👷</h2>
 
-      {requests.length === 0 && <p>No requests available</p>}
-
+      {/* REQUESTS */}
       {requests.map((req) => (
         <div key={req.id} style={styles.card}>
           <p><strong>System Size:</strong> {req.system_size} kVA</p>
 
           <input
             style={styles.input}
-            placeholder="Price"
+            placeholder="Total Price (₦)"
+            value={formData[req.id]?.price || ""}
             onChange={(e) =>
               handleInputChange(req.id, 'price', e.target.value)
             }
@@ -96,7 +116,8 @@ function InstallerDashboard() {
 
           <input
             style={styles.input}
-            placeholder="Monthly Plan"
+            placeholder="Monthly Plan (₦)"
+            value={formData[req.id]?.monthly || ""}
             onChange={(e) =>
               handleInputChange(req.id, 'monthly', e.target.value)
             }
@@ -104,9 +125,20 @@ function InstallerDashboard() {
 
           <input
             style={styles.input}
-            placeholder="Timeline"
+            placeholder="Installation Timeline"
+            value={formData[req.id]?.timeline || ""}
             onChange={(e) =>
               handleInputChange(req.id, 'timeline', e.target.value)
+            }
+          />
+
+          {/* ✅ CONTROLLED TEXTAREA (FIXED) */}
+          <textarea
+            style={styles.textarea}
+            placeholder="Installer Terms & Conditions"
+            value={formData[req.id]?.terms || ""}
+            onChange={(e) =>
+              handleInputChange(req.id, 'terms', e.target.value)
             }
           />
 
@@ -118,11 +150,29 @@ function InstallerDashboard() {
           </button>
         </div>
       ))}
+
+      {/* QUOTES DISPLAY */}
+      <h3>Submitted Quotes</h3>
+
+      {quotes.length === 0 && <p>No quotes yet</p>}
+
+      {quotes.map((quote) => (
+        <div key={quote.id} style={styles.card}>
+          <p><strong>Installer:</strong> {quote.installer_name}</p>
+          <p><strong>Price:</strong> ₦{quote.price}</p>
+          <p><strong>Monthly:</strong> ₦{quote.monthly_plan}</p>
+          <p><strong>Timeline:</strong> {quote.timeline}</p>
+
+          <p>
+            <strong>Terms:</strong> {quote.terms || "No terms provided"}
+          </p>
+        </div>
+      ))}
     </div>
   )
 }
 
-// 🎨 Styling
+// 🎨 Styles
 const styles = {
   container: {
     background: '#0D1B2A',
@@ -143,6 +193,15 @@ const styles = {
     margin: '8px 0',
     borderRadius: '6px',
     border: 'none',
+  },
+  textarea: {
+    display: 'block',
+    width: '100%',
+    padding: '10px',
+    margin: '8px 0',
+    borderRadius: '6px',
+    border: 'none',
+    minHeight: '80px',
   },
   button: {
     background: '#FFC107',
