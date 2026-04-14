@@ -1,253 +1,214 @@
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { supabase } from './lib/supabaseClient'
 
 function EnergyCalculator() {
-  const [tvs, setTvs] = useState(0)
-  const [fridges, setFridges] = useState(0)
-  const [acs, setAcs] = useState(0)
-  const [lights, setLights] = useState(0)
-
-  const [result, setResult] = useState(null)
   const [quotes, setQuotes] = useState([])
+  const [banks, setBanks] = useState([])
+  const [financing, setFinancing] = useState([])
 
-  // 🔌 Load Paystack script
   useEffect(() => {
-    const script = document.createElement('script')
-    script.src = 'https://js.paystack.co/v1/inline.js'
-    script.async = true
-    document.body.appendChild(script)
+    fetchQuotes()
+    fetchBanks()
+    fetchFinancing()
+
+    const interval = setInterval(() => {
+      fetchFinancing()
+    }, 5000)
+
+    return () => clearInterval(interval)
   }, [])
 
-  // 🔋 Calculate Energy
-  const calculateEnergy = () => {
-    const totalLoad =
-      Number(tvs) * 100 +
-      Number(fridges) * 300 +
-      Number(acs) * 1500 +
-      Number(lights) * 20
-
-    const systemSize = (totalLoad / 1000).toFixed(2)
-    const monthlyCost = (systemSize * 25000).toFixed(0)
-
-    setResult({ systemSize, monthlyCost })
-  }
-
-  // 📥 Save Request
-  const submitRequest = async () => {
-    if (!result) return
-
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-
-    if (!user) {
-      alert('User not logged in')
-      return
-    }
-
-    const { error } = await supabase.from('requests').insert([
-      {
-        system_size: result.systemSize,
-        status: 'pending',
-        user_id: user.id,
-      },
-    ])
-
-    if (error) {
-      alert('Error saving request')
-      console.log(error)
-    } else {
-      alert('Request submitted successfully!')
-    }
-  }
-
-  // 📤 Fetch Quotes
+  // 📥 Fetch quotes
   const fetchQuotes = async () => {
+    const { data } = await supabase
+      .from('quotes')
+      .select('*')
+      .order('created_at', { ascending: false })
+
+    setQuotes(data || [])
+  }
+
+  // 📥 Fetch banks
+  const fetchBanks = async () => {
+    const { data } = await supabase.from('banks').select('*')
+    setBanks(data || [])
+  }
+
+  // 📥 Fetch financing
+  const fetchFinancing = async () => {
     const {
       data: { user },
     } = await supabase.auth.getUser()
 
     if (!user) return
 
-    const { data, error } = await supabase
-      .from('quotes')
+    const { data } = await supabase
+      .from('financing_requests')
       .select('*')
       .eq('user_id', user.id)
-      .order('created_at', { ascending: false })
 
-    if (error) {
-      console.log(error)
-    } else {
-      setQuotes(data)
-    }
+    setFinancing(data || [])
   }
 
-  // 💳 Paystack Payment
-  const payWithPaystack = (quote) => {
-    if (!window.PaystackPop) {
-      alert('Paystack not loaded')
-      return
-    }
+  // 💳 Apply for financing
+  const applyForFinancing = async (quoteId, bankId) => {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+
+    await supabase.from('financing_requests').insert([
+      {
+        user_id: user.id,
+        quote_id: quoteId,
+        bank_id: bankId,
+        status: 'pending',
+      },
+    ])
+
+    alert('Financing request submitted!')
+    fetchFinancing()
+  }
+
+  // 💰 PAYSTACK PAYMENT
+  const handlePayment = async (quote) => {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
 
     const handler = window.PaystackPop.setup({
       key: 'pk_test_13c5e42a2c8c52768fd879c7a8e8200764d6945c',
-      email: 'test@email.com',
+      email: user.email,
       amount: quote.price * 100,
       currency: 'NGN',
 
-      callback: function (response) {
-        const reference = response.reference
+      callback: async function (response) {
+        alert('Payment successful! Ref: ' + response.reference)
 
-        supabase.auth.getUser().then(({ data }) => {
-          const user = data.user
-
-          fetch(
-            'https://xwamazrfpegephjebhwb.functions.supabase.co/verify-payment',
-            {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                reference,
-                quote_id: quote.id,
-                user_id: user.id,
-              }),
-            }
-          )
-
-          alert('Payment successful and verified!')
-        })
+        // 🔥 SAVE TO DATABASE
+        await supabase.from('payments').insert([
+          {
+            user_id: user.id,
+            quote_id: quote.id,
+            amount: quote.price,
+            reference: response.reference,
+            status: 'paid',
+          },
+        ])
       },
 
       onClose: function () {
-        console.log('Payment closed')
+        alert('Payment cancelled')
       },
     })
 
     handler.openIframe()
   }
 
+  // 🔔 Notification
+  const getNotification = (status) => {
+    if (status === 'approved')
+      return '✅ Financing Approved - You can proceed to payment'
+    if (status === 'rejected')
+      return '❌ Financing Rejected - Choose another bank'
+    return '⏳ Awaiting Bank Approval'
+  }
+
   return (
     <div style={styles.container}>
-      <h1 style={styles.title}>⚡ PowerNaija</h1>
-      <p style={styles.subtitle}>Solar made simple</p>
+      <h2>User Dashboard ⚡</h2>
 
-      <div style={styles.card}>
-        <h3>Energy Calculator</h3>
+      {quotes.map((quote) => {
+        const userRequest = financing.find(
+          (f) => f.quote_id === quote.id
+        )
 
-        <input style={styles.input} type="number" placeholder="Number of TVs" onChange={(e) => setTvs(e.target.value)} />
-        <input style={styles.input} type="number" placeholder="Fridges" onChange={(e) => setFridges(e.target.value)} />
-        <input style={styles.input} type="number" placeholder="Air Conditioners" onChange={(e) => setAcs(e.target.value)} />
-        <input style={styles.input} type="number" placeholder="Lights" onChange={(e) => setLights(e.target.value)} />
+        return (
+          <div key={quote.id} style={styles.card}>
+            <p><strong>Installer:</strong> {quote.installer_name}</p>
+            <p><strong>Price:</strong> ₦{quote.price}</p>
+            <p><strong>Monthly:</strong> ₦{quote.monthly_plan}</p>
+            <p><strong>Timeline:</strong> {quote.timeline}</p>
+            <p><strong>Terms:</strong> {quote.terms}</p>
 
-        <button style={styles.button} onClick={calculateEnergy}>
-          Calculate
-        </button>
-
-        {result && (
-          <div style={styles.result}>
-            <p>⚡ System Size: <strong>{result.systemSize} kVA</strong></p>
-            <p>💰 Monthly: <strong>₦{result.monthlyCost}</strong></p>
-
-            <button style={styles.button} onClick={submitRequest}>
-              Request Solar
+            {/* 💳 PAY BUTTON */}
+            <button
+              style={{
+                ...styles.button,
+                background:
+                  userRequest?.status === 'approved'
+                    ? '#28a745'
+                    : '#555',
+              }}
+              disabled={userRequest?.status !== 'approved'}
+              onClick={() => handlePayment(quote)}
+            >
+              {userRequest?.status === 'approved'
+                ? 'Pay Now'
+                : 'Awaiting Approval'}
             </button>
 
-            <button style={styles.button} onClick={fetchQuotes}>
-              View My Quotes
-            </button>
-          </div>
-        )}
+            {/* 🏦 BANK OPTIONS */}
+            <h4>Finance with Bank</h4>
 
-        {quotes.length > 0 && (
-          <div style={styles.quotes}>
-            <h3>My Quotes</h3>
+            {banks.map((bank) => (
+              <div key={bank.id} style={styles.bankCard}>
+                <p><strong>{bank.name}</strong></p>
+                <p>{bank.interest_rate}% - {bank.loan_duration}</p>
 
-            {quotes.map((quote) => (
-              <div key={quote.id} style={styles.quoteCard}>
-                <p><strong>Installer:</strong> {quote.installer_name}</p>
-                <p><strong>Price:</strong> ₦{quote.price}</p>
-                <p><strong>Monthly:</strong> ₦{quote.monthly_plan}</p>
-                <p><strong>Timeline:</strong> {quote.timeline}</p>
-
-                {quote.status === 'paid' ? (
-                  <>
-                    <p style={{ color: 'lightgreen', fontWeight: 'bold' }}>
-                      ✅ PAID
-                    </p>
-                    <p style={{ color: '#ccc' }}>
-                      Installer assigned and will contact you
-                    </p>
-                  </>
-                ) : (
-                  <button
-                    style={styles.button}
-                    onClick={() => payWithPaystack(quote)}
-                  >
-                    Pay Now
-                  </button>
-                )}
+                <button
+                  style={styles.button}
+                  onClick={() =>
+                    applyForFinancing(quote.id, bank.id)
+                  }
+                >
+                  Apply
+                </button>
               </div>
             ))}
+
+            {/* STATUS */}
+            {userRequest && (
+              <>
+                <p><strong>Status:</strong> {userRequest.status}</p>
+                <p style={{ color: '#FFC107' }}>
+                  {getNotification(userRequest.status)}
+                </p>
+              </>
+            )}
           </div>
-        )}
-      </div>
+        )
+      })}
     </div>
   )
 }
 
-// 🎨 Styling
 const styles = {
   container: {
     background: '#0D1B2A',
     minHeight: '100vh',
-    color: 'white',
     padding: '20px',
-    textAlign: 'center',
-  },
-  title: {
-    color: '#FFC107',
-  },
-  subtitle: {
-    marginBottom: '20px',
+    color: 'white',
   },
   card: {
     background: '#1B263B',
-    padding: '20px',
-    borderRadius: '12px',
-    maxWidth: '400px',
-    margin: 'auto',
+    padding: '15px',
+    borderRadius: '10px',
+    marginBottom: '20px',
   },
-  input: {
-    width: '100%',
+  bankCard: {
+    background: '#243447',
     padding: '10px',
-    margin: '8px 0',
+    marginTop: '10px',
     borderRadius: '8px',
-    border: 'none',
   },
   button: {
     background: '#FFC107',
-    color: '#000',
-    padding: '12px',
-    width: '100%',
     border: 'none',
-    borderRadius: '8px',
-    marginTop: '10px',
-    cursor: 'pointer',
-    fontWeight: 'bold',
-  },
-  result: {
-    marginTop: '15px',
-  },
-  quotes: {
-    marginTop: '20px',
-  },
-  quoteCard: {
-    background: '#0D1B2A',
     padding: '10px',
-    borderRadius: '8px',
     marginTop: '10px',
+    width: '100%',
+    borderRadius: '6px',
+    cursor: 'pointer',
   },
 }
 

@@ -61,7 +61,7 @@ function BankDashboard() {
     fetchBanks()
   }
 
-  // ✅ Approve financing
+  // ✅ Approve
   const approveRequest = async (id) => {
     await supabase
       .from('financing_requests')
@@ -71,7 +71,7 @@ function BankDashboard() {
     fetchFinancingRequests()
   }
 
-  // ❌ Reject financing
+  // ❌ Reject
   const rejectRequest = async (id) => {
     await supabase
       .from('financing_requests')
@@ -87,7 +87,7 @@ function BankDashboard() {
 
       {/* ADD BANK */}
       <div style={styles.card}>
-        <h3>Add Financial Institution</h3>
+        <h3>Add Bank</h3>
 
         <input
           style={styles.input}
@@ -97,19 +97,19 @@ function BankDashboard() {
 
         <input
           style={styles.input}
-          placeholder="Interest Rate (%)"
+          placeholder="Interest Rate"
           onChange={(e) => handleChange('interest_rate', e.target.value)}
         />
 
         <input
           style={styles.input}
-          placeholder="Loan Duration (e.g. 24 months)"
+          placeholder="Loan Duration"
           onChange={(e) => handleChange('loan_duration', e.target.value)}
         />
 
         <textarea
           style={styles.textarea}
-          placeholder="Bank Terms & Conditions"
+          placeholder="Bank Terms"
           onChange={(e) => handleChange('terms', e.target.value)}
         />
 
@@ -118,7 +118,7 @@ function BankDashboard() {
         </button>
       </div>
 
-      {/* SHOW BANKS */}
+      {/* BANK LIST */}
       <h3>Available Banks</h3>
       {banks.map((bank) => (
         <div key={bank.id} style={styles.card}>
@@ -134,14 +134,14 @@ function BankDashboard() {
 
       {requests.map((req) => (
         <div key={req.id} style={styles.card}>
-          <p>Quote ID: {req.quote_id}</p>
-          <p>Status: {req.status}</p>
+          <p><strong>Quote ID:</strong> {req.quote_id}</p>
+          <p><strong>Status:</strong> {req.status}</p>
 
-          <button onClick={() => approveRequest(req.id)} style={styles.button}>
+          <button style={styles.button} onClick={() => approveRequest(req.id)}>
             Approve
           </button>
 
-          <button onClick={() => rejectRequest(req.id)} style={styles.button}>
+          <button style={styles.button} onClick={() => rejectRequest(req.id)}>
             Reject
           </button>
         </div>
@@ -176,7 +176,6 @@ const styles = {
     margin: '8px 0',
     borderRadius: '6px',
     border: 'none',
-    minHeight: '80px',
   },
   button: {
     background: '#FFC107',
@@ -186,7 +185,6 @@ const styles = {
     width: '100%',
     borderRadius: '6px',
     cursor: 'pointer',
-    fontWeight: 'bold',
   },
 }
 

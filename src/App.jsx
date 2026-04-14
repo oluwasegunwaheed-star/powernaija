@@ -1,63 +1,38 @@
 import { useState } from 'react'
 import EnergyCalculator from './EnergyCalculator'
 import InstallerDashboard from './InstallerDashboard'
-import BankDashboard from './BankDashboard' // ✅ IMPORTANT
+import BankDashboard from './BankDashboard'
+import AdminDashboard from './AdminDashboard'
 import Auth from './Auth'
 
 function App() {
   const [user, setUser] = useState(null)
   const [page, setPage] = useState('user')
 
-  // 🔐 If not logged in → show login page
   if (!user) {
     return <Auth setUser={setUser} />
   }
 
   return (
-    <div style={styles.container}>
+    <div style={{ textAlign: 'center', padding: '20px' }}>
       <h2>PowerNaija ⚡</h2>
 
-      {/* NAVIGATION */}
-      <div style={styles.nav}>
-        <button onClick={() => setPage('user')}>
-          User App
-        </button>
-
-        <button onClick={() => setPage('installer')}>
-          Installer Dashboard
-        </button>
-
-        <button onClick={() => setPage('bank')}>
-          Bank Dashboard
-        </button>
-
-        <button onClick={() => setUser(null)}>
-          Logout
-        </button>
+      {/* NAV */}
+      <div style={{ marginBottom: '20px' }}>
+        <button onClick={() => setPage('user')}>User</button>
+        <button onClick={() => setPage('installer')}>Installer</button>
+        <button onClick={() => setPage('bank')}>Bank</button>
+        <button onClick={() => setPage('admin')}>Admin</button>
+        <button onClick={() => setUser(null)}>Logout</button>
       </div>
 
-      {/* PAGE DISPLAY */}
-      <div style={{ marginTop: '20px' }}>
-        {page === 'user' && <EnergyCalculator />}
-        {page === 'installer' && <InstallerDashboard />}
-        {page === 'bank' && <BankDashboard />}
-      </div>
+      {/* PAGES */}
+      {page === 'user' && <EnergyCalculator />}
+      {page === 'installer' && <InstallerDashboard />}
+      {page === 'bank' && <BankDashboard />}
+      {page === 'admin' && <AdminDashboard />}
     </div>
   )
-}
-
-// 🎨 Styling
-const styles = {
-  container: {
-    textAlign: 'center',
-    padding: '20px',
-  },
-  nav: {
-    display: 'flex',
-    gap: '10px',
-    justifyContent: 'center',
-    flexWrap: 'wrap',
-  },
 }
 
 export default App
