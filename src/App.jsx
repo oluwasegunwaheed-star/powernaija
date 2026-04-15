@@ -1,4 +1,7 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { supabase } from './lib/supabaseClient'
+import Layout from './Layout'
+
 import EnergyCalculator from './EnergyCalculator'
 import InstallerDashboard from './InstallerDashboard'
 import BankDashboard from './BankDashboard'
@@ -7,31 +10,64 @@ import Auth from './Auth'
 
 function App() {
   const [user, setUser] = useState(null)
-  const [page, setPage] = useState('user')
+  const [role, setRole] = useState(null)
+  const [page, setPage] = useState('user') // default view
 
+  useEffect(() => {
+    getUser()
+  }, [])
+
+  const getUser = async () => {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+
+    if (user) {
+      setUser(user)
+
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .single()
+
+      if (error) {
+        console.log(error)
+        setRole('user')
+      } else {
+        setRole(data?.role || 'user')
+        // ❌ DO NOT force page here anymore
+      }
+    }
+  }
+
+  // 🔐 LOGIN SCREEN
   if (!user) {
     return <Auth setUser={setUser} />
   }
 
+  // 🔄 PAGE SWITCHING
+  const renderPage = () => {
+    switch (page) {
+      case 'installer':
+        return <InstallerDashboard />
+
+      case 'bank':
+        return <BankDashboard />
+
+      case 'admin':
+        return <AdminDashboard />
+
+      case 'user':
+      default:
+        return <EnergyCalculator />
+    }
+  }
+
   return (
-    <div style={{ textAlign: 'center', padding: '20px' }}>
-      <h2>PowerNaija ⚡</h2>
-
-      {/* NAV */}
-      <div style={{ marginBottom: '20px' }}>
-        <button onClick={() => setPage('user')}>User</button>
-        <button onClick={() => setPage('installer')}>Installer</button>
-        <button onClick={() => setPage('bank')}>Bank</button>
-        <button onClick={() => setPage('admin')}>Admin</button>
-        <button onClick={() => setUser(null)}>Logout</button>
-      </div>
-
-      {/* PAGES */}
-      {page === 'user' && <EnergyCalculator />}
-      {page === 'installer' && <InstallerDashboard />}
-      {page === 'bank' && <BankDashboard />}
-      {page === 'admin' && <AdminDashboard />}
-    </div>
+    <Layout role={role} page={page} setPage={setPage}>
+      {renderPage()}
+    </Layout>
   )
 }
 

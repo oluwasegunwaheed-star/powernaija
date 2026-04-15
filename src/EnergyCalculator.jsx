@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { supabase } from './lib/supabaseClient'
+import toast from 'react-hot-toast'
 
 function EnergyCalculator() {
   const [quotes, setQuotes] = useState([])
@@ -7,173 +8,94 @@ function EnergyCalculator() {
   const [financing, setFinancing] = useState([])
 
   useEffect(() => {
-    fetchQuotes()
-    fetchBanks()
-    fetchFinancing()
-
-    const interval = setInterval(() => {
-      fetchFinancing()
-    }, 5000)
-
-    return () => clearInterval(interval)
+    fetchData()
   }, [])
 
-  // 📥 Fetch quotes
-  const fetchQuotes = async () => {
-    const { data } = await supabase
-      .from('quotes')
-      .select('*')
-      .order('created_at', { ascending: false })
+  const fetchData = async () => {
+    const { data: q } = await supabase.from('quotes').select('*')
+    const { data: b } = await supabase.from('banks').select('*')
 
-    setQuotes(data || [])
-  }
-
-  // 📥 Fetch banks
-  const fetchBanks = async () => {
-    const { data } = await supabase.from('banks').select('*')
-    setBanks(data || [])
-  }
-
-  // 📥 Fetch financing
-  const fetchFinancing = async () => {
     const {
       data: { user },
     } = await supabase.auth.getUser()
 
-    if (!user) return
-
-    const { data } = await supabase
+    const { data: f } = await supabase
       .from('financing_requests')
       .select('*')
       .eq('user_id', user.id)
 
-    setFinancing(data || [])
+    setQuotes(q || [])
+    setBanks(b || [])
+    setFinancing(f || [])
   }
 
-  // 💳 Apply for financing
-  const applyForFinancing = async (quoteId, bankId) => {
+  const apply = async (quoteId, bankId) => {
     const {
       data: { user },
     } = await supabase.auth.getUser()
 
     await supabase.from('financing_requests').insert([
-      {
-        user_id: user.id,
-        quote_id: quoteId,
-        bank_id: bankId,
-        status: 'pending',
-      },
+      { user_id: user.id, quote_id: quoteId, bank_id: bankId, status: 'pending' }
     ])
 
-    alert('Financing request submitted!')
-    fetchFinancing()
+    toast.success('Applied!')
+    fetchData()
   }
 
-  // 💰 PAYSTACK PAYMENT
-  const handlePayment = async (quote) => {
+  const makePayment = async (quote) => {
     const {
       data: { user },
     } = await supabase.auth.getUser()
 
-    const handler = window.PaystackPop.setup({
-      key: 'pk_test_13c5e42a2c8c52768fd879c7a8e8200764d6945c',
-      email: user.email,
-      amount: quote.price * 100,
-      currency: 'NGN',
+    await supabase.from('payments').insert([
+      {
+        user_id: user.id,
+        quote_id: quote.id,
+        amount: quote.price,
+        status: 'paid'
+      }
+    ])
 
-      callback: async function (response) {
-        alert('Payment successful! Ref: ' + response.reference)
-
-        // 🔥 SAVE TO DATABASE
-        await supabase.from('payments').insert([
-          {
-            user_id: user.id,
-            quote_id: quote.id,
-            amount: quote.price,
-            reference: response.reference,
-            status: 'paid',
-          },
-        ])
-      },
-
-      onClose: function () {
-        alert('Payment cancelled')
-      },
-    })
-
-    handler.openIframe()
+    toast.success('Payment successful!')
   }
 
-  // 🔔 Notification
-  const getNotification = (status) => {
-    if (status === 'approved')
-      return '✅ Financing Approved - You can proceed to payment'
-    if (status === 'rejected')
-      return '❌ Financing Rejected - Choose another bank'
-    return '⏳ Awaiting Bank Approval'
+  const getStatus = (quoteId) => {
+    return financing.find(f => f.quote_id === quoteId)
   }
 
   return (
-    <div style={styles.container}>
-      <h2>User Dashboard ⚡</h2>
+    <div style={{ padding: '20px' }}>
+      <h2>⚡ Dashboard</h2>
 
-      {quotes.map((quote) => {
-        const userRequest = financing.find(
-          (f) => f.quote_id === quote.id
-        )
+      {quotes.map(q => {
+        const f = getStatus(q.id)
 
         return (
-          <div key={quote.id} style={styles.card}>
-            <p><strong>Installer:</strong> {quote.installer_name}</p>
-            <p><strong>Price:</strong> ₦{quote.price}</p>
-            <p><strong>Monthly:</strong> ₦{quote.monthly_plan}</p>
-            <p><strong>Timeline:</strong> {quote.timeline}</p>
-            <p><strong>Terms:</strong> {quote.terms}</p>
+          <div key={q.id} style={styles.card}>
+            <h3>{q.installer_name}</h3>
+            <p>₦{q.price}</p>
 
-            {/* 💳 PAY BUTTON */}
-            <button
-              style={{
-                ...styles.button,
-                background:
-                  userRequest?.status === 'approved'
-                    ? '#28a745'
-                    : '#555',
-              }}
-              disabled={userRequest?.status !== 'approved'}
-              onClick={() => handlePayment(quote)}
-            >
-              {userRequest?.status === 'approved'
-                ? 'Pay Now'
-                : 'Awaiting Approval'}
-            </button>
+            <p>Status: {f?.status || 'Not applied'}</p>
 
-            {/* 🏦 BANK OPTIONS */}
-            <h4>Finance with Bank</h4>
-
-            {banks.map((bank) => (
-              <div key={bank.id} style={styles.bankCard}>
-                <p><strong>{bank.name}</strong></p>
-                <p>{bank.interest_rate}% - {bank.loan_duration}</p>
-
-                <button
-                  style={styles.button}
-                  onClick={() =>
-                    applyForFinancing(quote.id, bank.id)
-                  }
-                >
-                  Apply
-                </button>
-              </div>
+            {/* APPLY */}
+            {!f && banks.map(b => (
+              <button
+                key={b.id}
+                style={styles.button}
+                onClick={() => apply(q.id, b.id)}
+              >
+                Apply via {b.name}
+              </button>
             ))}
 
-            {/* STATUS */}
-            {userRequest && (
-              <>
-                <p><strong>Status:</strong> {userRequest.status}</p>
-                <p style={{ color: '#FFC107' }}>
-                  {getNotification(userRequest.status)}
-                </p>
-              </>
+            {/* PAYMENT UNLOCK */}
+            {f?.status === 'approved' && (
+              <button
+                style={styles.pay}
+                onClick={() => makePayment(q)}
+              >
+                Pay Now 💳
+              </button>
             )}
           </div>
         )
@@ -183,32 +105,30 @@ function EnergyCalculator() {
 }
 
 const styles = {
-  container: {
-    background: '#0D1B2A',
-    minHeight: '100vh',
-    padding: '20px',
-    color: 'white',
-  },
   card: {
-    background: '#1B263B',
+    background: '#fff',
     padding: '15px',
+    marginBottom: '10px',
     borderRadius: '10px',
-    marginBottom: '20px',
   },
-  bankCard: {
-    background: '#243447',
-    padding: '10px',
-    marginTop: '10px',
-    borderRadius: '8px',
-  },
+
   button: {
-    background: '#FFC107',
+    display: 'block',
+    marginTop: '5px',
+    padding: '8px',
+    background: '#2563EB',
+    color: '#fff',
     border: 'none',
-    padding: '10px',
+    borderRadius: '5px',
+  },
+
+  pay: {
     marginTop: '10px',
-    width: '100%',
+    padding: '10px',
+    background: 'green',
+    color: '#fff',
+    border: 'none',
     borderRadius: '6px',
-    cursor: 'pointer',
   },
 }
 
