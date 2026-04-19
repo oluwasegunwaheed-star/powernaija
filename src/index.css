@@ -7,6 +7,20 @@
   }
 }
 
+:root {
+  --brand-primary: #2563eb;
+  --brand-secondary: #7c3aed;
+  --brand-accent: #0ea5e9;
+  --brand-success: #16a34a;
+  --brand-danger: #dc2626;
+  --brand-dark: #0f172a;
+  --brand-text: #334155;
+  --brand-muted: #64748b;
+  --brand-light: #f8fafc;
+  --brand-soft: #eef2ff;
+  --brand-border: #e2e8f0;
+}
+
 * {
   box-sizing: border-box;
 }
@@ -25,9 +39,15 @@ body,
 }
 
 body {
-  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  background: #f8fafc;
-  color: #0f172a;
+  font-family:
+    Inter,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+  background: var(--brand-light);
+  color: var(--brand-dark);
   line-height: 1.5;
 }
 

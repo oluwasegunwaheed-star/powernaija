@@ -127,7 +127,6 @@ export default function App() {
     }
   }, [])
 
-  const openLanding = () => navigate('/')
   const openAuth = () => navigate('/auth')
   const openDashboard = () => navigate('/dashboard')
 

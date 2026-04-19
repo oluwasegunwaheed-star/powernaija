@@ -496,7 +496,6 @@ function PreviewCard({ title, src }) {
           <div style={previewPlaceholderText}>Preview image unavailable</div>
         </div>
       )}
-
       <div style={previewCaption}>{title}</div>
     </article>
   )
