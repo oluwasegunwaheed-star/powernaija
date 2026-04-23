@@ -8,7 +8,14 @@ const previewImages = [
   { src: '/screenshots/admin-review.png', title: 'Admin Review' }
 ]
 
-export default function LandingPage({ onGetStarted, onSignIn, onOpenDashboard, isLoggedIn }) {
+export default function LandingPage({
+  onGetStarted,
+  onSignIn,
+  onOpenDashboard,
+  onOpenPrivacy,
+  onOpenTerms,
+  isLoggedIn
+}) {
   const [contactForm, setContactForm] = useState({
     name: '',
     email: '',
@@ -64,11 +71,11 @@ export default function LandingPage({ onGetStarted, onSignIn, onOpenDashboard, i
 
   return (
     <div style={page}>
-      <div style={bgGlowOne} />
-      <div style={bgGlowTwo} />
+      <div style={glowOne} />
+      <div style={glowTwo} />
 
-      <nav style={navBar}>
-        <div style={brandWrap}>
+      <nav style={nav}>
+        <div style={brand}>
           <div style={brandMark}>⚡</div>
           <div>
             <div style={brandTitle}>PowerNaija</div>
@@ -78,14 +85,12 @@ export default function LandingPage({ onGetStarted, onSignIn, onOpenDashboard, i
 
         <div style={navLinks}>
           <a href="#features" style={navLink}>Features</a>
-          <a href="#how-it-works" style={navLink}>How It Works</a>
-          <a href="#roles" style={navLink}>Roles</a>
           <a href="#screenshots" style={navLink}>Screenshots</a>
           <a href="#contact" style={navLink}>Contact</a>
         </div>
 
-        <div style={headerActions}>
-          <button type="button" onClick={onSignIn} style={ghostBtn}>
+        <div style={navActions}>
+          <button type="button" onClick={onSignIn} style={secondaryBtn}>
             Sign In
           </button>
           <button
@@ -99,16 +104,15 @@ export default function LandingPage({ onGetStarted, onSignIn, onOpenDashboard, i
       </nav>
 
       <main style={main}>
-        <section style={heroSection}>
-          <div style={heroContent}>
+        <section style={hero}>
+          <div>
             <div style={eyebrow}>Finance solar smarter</div>
             <h1 style={heroTitle}>
-              One platform for users, installers, and banks to move solar projects from request to approval.
+              One platform for users, installers and banks to move solar projects from request to approval.
             </h1>
             <p style={heroText}>
-              PowerNaija streamlines the full solar financing journey. Users submit applications,
-              installers send quotes, banks make decisions, and admins control approvals in one
-              connected digital workflow.
+              PowerNaija simplifies applications, installer quotes, bank decisions,
+              and admin review in one connected workflow.
             </p>
 
             <div style={heroActions}>
@@ -119,170 +123,88 @@ export default function LandingPage({ onGetStarted, onSignIn, onOpenDashboard, i
               >
                 {isLoggedIn ? 'Go to Dashboard' : 'Start Your Application'}
               </button>
-              <button type="button" onClick={onSignIn} style={ghostBtnLarge}>
+              <button type="button" onClick={onSignIn} style={secondaryBtnLarge}>
                 Sign In
               </button>
             </div>
 
-            <div style={heroMetrics}>
+            <div style={metrics}>
               <MetricCard value="3 Roles" label="Users, Installers, Banks" />
               <MetricCard value="1 Flow" label="Request → Quote → Decision" />
-              <MetricCard value="Live" label="Approval tracking" />
+              <MetricCard value="Live" label="Status tracking" />
             </div>
           </div>
 
-          <div style={heroPanel}>
-            <div style={mockWindow}>
-              <div style={mockTopBar}>
-                <span style={dot('#ef4444')} />
-                <span style={dot('#f59e0b')} />
-                <span style={dot('#10b981')} />
+          <div style={heroCard}>
+            <div style={heroCardHeader}>Platform Overview</div>
+            <div style={heroStats}>
+              <div style={statCard}>
+                <div style={statLabel}>Applications</div>
+                <div style={statValue}>128</div>
               </div>
-
-              <div style={mockBody}>
-                <div style={mockSidebar}>
-                  <div style={mockSidebarBlock} />
-                  <div style={mockSidebarLine} />
-                  <div style={mockSidebarLine} />
-                  <div style={mockSidebarLine} />
-                </div>
-
-                <div style={mockMain}>
-                  <div style={mockHeroCard}>
-                    <div style={mockLabel}>PowerNaija Dashboard</div>
-                    <div style={mockHeading}>Track onboarding, quotes and finance decisions</div>
-                  </div>
-
-                  <div style={mockGrid}>
-                    <div style={mockStatCard}>
-                      <div style={mockStatLabel}>Applications</div>
-                      <div style={mockStatValue}>128</div>
-                    </div>
-                    <div style={mockStatCard}>
-                      <div style={mockStatLabel}>Quotes</div>
-                      <div style={mockStatValue}>84</div>
-                    </div>
-                    <div style={mockStatCard}>
-                      <div style={mockStatLabel}>Approved</div>
-                      <div style={mockStatValue}>31</div>
-                    </div>
-                  </div>
-
-                  <div style={mockTableCard}>
-                    <div style={mockRow}>
-                      <span style={mockPill('#dbeafe', '#1d4ed8')}>Submitted</span>
-                      <span style={mockBarLong} />
-                    </div>
-                    <div style={mockRow}>
-                      <span style={mockPill('#dcfce7', '#166534')}>Approved</span>
-                      <span style={mockBarMed} />
-                    </div>
-                    <div style={mockRow}>
-                      <span style={mockPill('#fee2e2', '#991b1b')}>Rejected</span>
-                      <span style={mockBarShort} />
-                    </div>
-                  </div>
-                </div>
+              <div style={statCard}>
+                <div style={statLabel}>Quotes</div>
+                <div style={statValue}>84</div>
+              </div>
+              <div style={statCard}>
+                <div style={statLabel}>Approved</div>
+                <div style={statValue}>31</div>
               </div>
             </div>
-          </div>
-        </section>
 
-        <section id="how-it-works" style={section}>
-          <div style={sectionIntro}>
-            <div style={sectionEyebrow}>How it works</div>
-            <h2 style={sectionTitle}>A clear financing journey for every stakeholder</h2>
-            <p style={sectionText}>
-              PowerNaija is built to remove delays, confusion, and disconnected handoffs between
-              customers, installers, and banks.
-            </p>
-          </div>
-
-          <div style={stepsGrid}>
-            <StepCard
-              number="01"
-              title="User submits application"
-              text="Customers create a solar request, add project details, and choose a preferred bank."
-            />
-            <StepCard
-              number="02"
-              title="Installer sends quote"
-              text="Approved installers review requests and submit structured pricing and delivery timelines."
-            />
-            <StepCard
-              number="03"
-              title="Bank makes decision"
-              text="Banks review financing applications, record notes, and approve, reject, or mark under review."
-            />
-            <StepCard
-              number="04"
-              title="User sees live status"
-              text="The customer tracks every stage in one place, including quotes, bank updates, and approval status."
-            />
-          </div>
-        </section>
-
-        <section id="roles" style={section}>
-          <div style={sectionIntro}>
-            <div style={sectionEyebrow}>Built for every role</div>
-            <h2 style={sectionTitle}>One platform, tailored workspaces</h2>
-          </div>
-
-          <div style={roleGrid}>
-            <RoleCard
-              icon="👤"
-              title="For Users"
-              text="Create solar applications, receive installer quotes, send quotes to banks, and track financing outcomes live."
-            />
-            <RoleCard
-              icon="🛠️"
-              title="For Installers"
-              text="Access open requests, submit quote offers, and manage your active sales pipeline in a cleaner workflow."
-            />
-            <RoleCard
-              icon="🏦"
-              title="For Banks"
-              text="Review finance applications, add decision notes, and update approval status with a structured control panel."
-            />
-            <RoleCard
-              icon="🛡️"
-              title="For Admins"
-              text="Control onboarding, verify documents, review history, and approve access across all platform participants."
-            />
+            <div style={flowCard}>
+              <div style={flowRow}>
+                <span style={pill('#dbeafe', '#1d4ed8')}>Submitted</span>
+                <span style={barLong} />
+              </div>
+              <div style={flowRow}>
+                <span style={pill('#dcfce7', '#166534')}>Approved</span>
+                <span style={barMid} />
+              </div>
+              <div style={flowRow}>
+                <span style={pill('#fee2e2', '#991b1b')}>Rejected</span>
+                <span style={barShort} />
+              </div>
+            </div>
           </div>
         </section>
 
         <section id="features" style={section}>
-          <div style={featureBanner}>
-            <div>
-              <div style={sectionEyebrow}>Why PowerNaija</div>
-              <h2 style={{ ...sectionTitle, marginBottom: 10 }}>
-                Modern solar financing operations in one product
-              </h2>
-              <p style={sectionText}>
-                Replace fragmented emails, spreadsheets, and delayed approvals with a more modern,
-                transparent platform experience.
-              </p>
-            </div>
+          <div style={sectionHeader}>
+            <div style={sectionEyebrow}>Features</div>
+            <h2 style={sectionTitle}>Built for solar finance operations</h2>
+            <p style={sectionText}>
+              PowerNaija helps teams manage onboarding, quoting, approval and visibility in one place.
+            </p>
+          </div>
 
-            <div style={featureList}>
-              <FeaturePill text="Onboarding and document verification" />
-              <FeaturePill text="Installer quote workflow" />
-              <FeaturePill text="Bank decision pipeline" />
-              <FeaturePill text="Live user status tracking" />
-              <FeaturePill text="Role-based dashboards" />
-              <FeaturePill text="Audit-ready admin review" />
-            </div>
+          <div style={featureGrid}>
+            <FeatureCard
+              title="User applications"
+              text="Capture solar requests with cleaner structured workflows."
+            />
+            <FeatureCard
+              title="Installer quoting"
+              text="Let approved installers review and submit quotes quickly."
+            />
+            <FeatureCard
+              title="Bank decisions"
+              text="Support review, approval, rejection and decision visibility."
+            />
+            <FeatureCard
+              title="Admin control"
+              text="Track onboarding, verification and operational oversight."
+            />
           </div>
         </section>
 
         <section id="screenshots" style={section}>
-          <div style={sectionIntro}>
+          <div style={sectionHeader}>
             <div style={sectionEyebrow}>Platform Preview</div>
             <h2 style={sectionTitle}>See the product in action</h2>
             <p style={sectionText}>
               Explore the role-based experience across user applications, installer quoting,
-              bank decisioning, and admin onboarding review.
+              bank decisioning and admin review.
             </p>
           </div>
 
@@ -293,64 +215,21 @@ export default function LandingPage({ onGetStarted, onSignIn, onOpenDashboard, i
           </div>
         </section>
 
-        <section style={section}>
-          <div style={sectionIntro}>
-            <div style={sectionEyebrow}>Trust & Use Cases</div>
-            <h2 style={sectionTitle}>Designed for real solar financing operations</h2>
-          </div>
-
-          <div style={roleGrid}>
-            <RoleCard
-              icon="🏠"
-              title="Homeowners"
-              text="Create financing-ready solar requests without chasing installers and banks separately."
-            />
-            <RoleCard
-              icon="🔧"
-              title="Solar Installers"
-              text="Respond faster to live opportunities and structure quotes in a cleaner workflow."
-            />
-            <RoleCard
-              icon="💳"
-              title="Financial Institutions"
-              text="Review, decide and track applications with better visibility and control."
-            />
-            <RoleCard
-              icon="📋"
-              title="Operations Teams"
-              text="Keep approvals, documentation and status history in one audit-friendly system."
-            />
-          </div>
-        </section>
-
-        <section id="contact" style={ctaSection}>
-          <div style={ctaCard}>
-            <div style={sectionEyebrow}>Contact / Demo</div>
-            <h2 style={ctaTitle}>Start building a better solar finance experience today.</h2>
-            <p style={ctaText}>
-              Bring customers, installers, banks, and approvals into one workflow-first platform.
+        <section id="contact" style={contactSection}>
+          <div style={contactCard}>
+            <div style={sectionEyebrow}>Get in Touch</div>
+            <h2 style={contactTitle}>Start building a better solar finance experience today.</h2>
+            <p style={contactText}>
+              Bring customers, installers, banks and approvals into one workflow-first platform.
             </p>
 
-            <div style={heroActions}>
-              <button
-                type="button"
-                onClick={isLoggedIn ? onOpenDashboard : onGetStarted}
-                style={primaryBtnLarge}
-              >
-                {isLoggedIn ? 'Open Dashboard' : 'Create Account'}
-              </button>
-              <button type="button" onClick={onSignIn} style={ghostBtnLarge}>
-                Sign In
-              </button>
-            </div>
-
-            <form onSubmit={handleContactSubmit} style={contactFormWrap}>
-              <div style={contactGrid}>
+            <form onSubmit={handleContactSubmit} style={form}>
+              <div style={formGrid}>
                 <Field label="Name">
                   <input
                     value={contactForm.name}
                     onChange={(e) => handleContactChange('name', e.target.value)}
-                    style={contactInput}
+                    style={input}
                     placeholder="Your name"
                   />
                 </Field>
@@ -360,7 +239,7 @@ export default function LandingPage({ onGetStarted, onSignIn, onOpenDashboard, i
                     type="email"
                     value={contactForm.email}
                     onChange={(e) => handleContactChange('email', e.target.value)}
-                    style={contactInput}
+                    style={input}
                     placeholder="you@example.com"
                   />
                 </Field>
@@ -370,15 +249,15 @@ export default function LandingPage({ onGetStarted, onSignIn, onOpenDashboard, i
                     value={contactForm.role}
                     onChange={(e) => handleContactChange('role', e.target.value)}
                     style={{
-                      ...contactSelect,
-                      color: contactForm.role ? '#ffffff' : 'rgba(255,255,255,0.72)'
+                      ...selectInput,
+                      color: contactForm.role ? '#ffffff' : 'rgba(255,255,255,0.75)'
                     }}
                   >
-                    <option value="" style={contactOption}>Select role</option>
-                    <option value="user" style={contactOption}>User</option>
-                    <option value="installer" style={contactOption}>Installer</option>
-                    <option value="bank" style={contactOption}>Bank</option>
-                    <option value="partner" style={contactOption}>Partner</option>
+                    <option value="" style={optionStyle}>Select role</option>
+                    <option value="user" style={optionStyle}>User</option>
+                    <option value="installer" style={optionStyle}>Installer</option>
+                    <option value="bank" style={optionStyle}>Bank</option>
+                    <option value="partner" style={optionStyle}>Partner</option>
                   </select>
                 </Field>
 
@@ -386,19 +265,19 @@ export default function LandingPage({ onGetStarted, onSignIn, onOpenDashboard, i
                   <textarea
                     value={contactForm.message}
                     onChange={(e) => handleContactChange('message', e.target.value)}
-                    style={contactTextarea}
+                    style={textarea}
                     placeholder="Tell us what you want to do with PowerNaija"
                   />
                 </Field>
               </div>
 
-              <div style={{ marginTop: 14, display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
-                <button type="submit" style={submitContactBtn} disabled={contactLoading}>
+              <div style={formActions}>
+                <button type="submit" disabled={contactLoading} style={submitBtn}>
                   {contactLoading ? 'Sending...' : 'Send Message'}
                 </button>
 
-                {contactMessage ? <div style={contactSuccess}>{contactMessage}</div> : null}
-                {contactError ? <div style={contactErrorBox}>{contactError}</div> : null}
+                {contactMessage ? <div style={successMsg}>{contactMessage}</div> : null}
+                {contactError ? <div style={errorMsg}>{contactError}</div> : null}
               </div>
             </form>
           </div>
@@ -407,28 +286,30 @@ export default function LandingPage({ onGetStarted, onSignIn, onOpenDashboard, i
 
       <footer style={footer}>
         <div>
-          <div style={{ fontWeight: 800, color: '#0f172a' }}>PowerNaija</div>
-          <div style={{ marginTop: 6 }}>
-            Solar finance platform for users, installers and banks.
-          </div>
+          <div style={footerBrand}>PowerNaija</div>
+          <div style={footerText}>Solar finance platform for users, installers and banks.</div>
         </div>
 
-        <div style={footerColumn}>
-          <div style={footerHeading}>Company</div>
+        <div style={footerCol}>
+          <div style={footerHead}>Company</div>
           <a href="#features" style={footerLink}>Features</a>
-          <a href="#how-it-works" style={footerLink}>How It Works</a>
-          <a href="#roles" style={footerLink}>Roles</a>
+          <a href="#screenshots" style={footerLink}>Screenshots</a>
+          <a href="#contact" style={footerLink}>Contact</a>
         </div>
 
-        <div style={footerColumn}>
-          <div style={footerHeading}>Legal</div>
-          <span style={footerLink}>Privacy Policy</span>
-          <span style={footerLink}>Terms of Use</span>
+        <div style={footerCol}>
+          <div style={footerHead}>Legal</div>
+          <button type="button" onClick={onOpenPrivacy} style={footerBtn}>
+            Privacy Policy
+          </button>
+          <button type="button" onClick={onOpenTerms} style={footerBtn}>
+            Terms of Use
+          </button>
         </div>
 
-        <div style={footerColumn}>
-          <div style={footerHeading}>Contact</div>
-          <span style={footerLink}>hello@powernaija.com</span>
+        <div style={footerCol}>
+          <div style={footerHead}>Contact</div>
+          <span style={footerLink}>oluwasegunwaheed@gmail.com</span>
           <span style={footerLink}>Lagos, Nigeria</span>
         </div>
       </footer>
@@ -438,7 +319,7 @@ export default function LandingPage({ onGetStarted, onSignIn, onOpenDashboard, i
 
 function Field({ label, children }) {
   return (
-    <label style={{ display: 'grid', gap: 6 }}>
+    <label style={fieldWrap}>
       <span style={fieldLabel}>{label}</span>
       {children}
     </label>
@@ -454,28 +335,13 @@ function MetricCard({ value, label }) {
   )
 }
 
-function StepCard({ number, title, text }) {
+function FeatureCard({ title, text }) {
   return (
-    <article style={stepCard}>
-      <div style={stepNumber}>{number}</div>
-      <div style={stepTitle}>{title}</div>
-      <div style={stepText}>{text}</div>
-    </article>
+    <div style={featureCard}>
+      <div style={featureTitle}>{title}</div>
+      <div style={featureText}>{text}</div>
+    </div>
   )
-}
-
-function RoleCard({ icon, title, text }) {
-  return (
-    <article style={roleCard}>
-      <div style={roleIcon}>{icon}</div>
-      <div style={roleTitle}>{title}</div>
-      <div style={roleText}>{text}</div>
-    </article>
-  )
-}
-
-function FeaturePill({ text }) {
-  return <div style={featurePill}>{text}</div>
 }
 
 function PreviewCard({ title, src }) {
@@ -501,15 +367,7 @@ function PreviewCard({ title, src }) {
   )
 }
 
-const dot = (background) => ({
-  width: 10,
-  height: 10,
-  borderRadius: '50%',
-  background,
-  display: 'inline-block'
-})
-
-const mockPill = (background, color) => ({
+const pill = (background, color) => ({
   display: 'inline-flex',
   padding: '6px 10px',
   borderRadius: 999,
@@ -526,7 +384,7 @@ const page = {
   overflow: 'hidden'
 }
 
-const bgGlowOne = {
+const glowOne = {
   position: 'fixed',
   top: -100,
   right: -80,
@@ -538,7 +396,7 @@ const bgGlowOne = {
   pointerEvents: 'none'
 }
 
-const bgGlowTwo = {
+const glowTwo = {
   position: 'fixed',
   bottom: -120,
   left: -90,
@@ -550,7 +408,7 @@ const bgGlowTwo = {
   pointerEvents: 'none'
 }
 
-const navBar = {
+const nav = {
   maxWidth: 1240,
   margin: '0 auto',
   padding: '24px 20px',
@@ -566,7 +424,7 @@ const navBar = {
   backdropFilter: 'blur(12px)'
 }
 
-const brandWrap = {
+const brand = {
   display: 'flex',
   alignItems: 'center',
   gap: 14
@@ -608,7 +466,7 @@ const navLink = {
   color: '#475569'
 }
 
-const headerActions = {
+const navActions = {
   display: 'flex',
   gap: 10,
   flexWrap: 'wrap'
@@ -621,11 +479,10 @@ const primaryBtn = {
   borderRadius: 14,
   padding: '12px 16px',
   cursor: 'pointer',
-  fontWeight: 800,
-  boxShadow: '0 14px 28px rgba(37, 99, 235, 0.18)'
+  fontWeight: 800
 }
 
-const ghostBtn = {
+const secondaryBtn = {
   background: '#fff',
   color: '#0f172a',
   border: '1px solid #cbd5e1',
@@ -641,8 +498,8 @@ const primaryBtnLarge = {
   borderRadius: 16
 }
 
-const ghostBtnLarge = {
-  ...ghostBtn,
+const secondaryBtnLarge = {
+  ...secondaryBtn,
   padding: '14px 20px',
   borderRadius: 16
 }
@@ -652,20 +509,16 @@ const main = {
   margin: '0 auto',
   padding: '10px 20px 48px',
   display: 'grid',
-  gap: 26,
+  gap: 28,
   position: 'relative',
   zIndex: 2
 }
 
-const heroSection = {
+const hero = {
   display: 'grid',
-  gridTemplateColumns: '1.05fr 0.95fr',
-  gap: 26,
+  gridTemplateColumns: '1.1fr 0.9fr',
+  gap: 24,
   alignItems: 'center'
-}
-
-const heroContent = {
-  minWidth: 0
 }
 
 const eyebrow = {
@@ -687,15 +540,15 @@ const heroTitle = {
   lineHeight: 1.02,
   fontWeight: 950,
   color: '#0f172a',
-  letterSpacing: -1.4
+  letterSpacing: -1.3
 }
 
 const heroText = {
-  marginTop: 18,
+  marginTop: 16,
   fontSize: 17,
   lineHeight: 1.7,
   color: '#475569',
-  maxWidth: 760
+  maxWidth: 720
 }
 
 const heroActions = {
@@ -705,7 +558,7 @@ const heroActions = {
   marginTop: 24
 }
 
-const heroMetrics = {
+const metrics = {
   marginTop: 28,
   display: 'grid',
   gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
@@ -716,7 +569,6 @@ const metricCard = {
   borderRadius: 22,
   padding: 18,
   background: 'rgba(255,255,255,0.78)',
-  backdropFilter: 'blur(12px)',
   border: '1px solid rgba(226, 232, 240, 0.9)',
   boxShadow: '0 18px 40px rgba(15, 23, 42, 0.05)'
 }
@@ -730,111 +582,51 @@ const metricValue = {
 const metricLabel = {
   marginTop: 8,
   fontSize: 13,
-  color: '#64748b',
-  lineHeight: 1.5
+  color: '#64748b'
 }
 
-const heroPanel = {
-  minWidth: 0
-}
-
-const mockWindow = {
-  borderRadius: 30,
-  background: 'rgba(255,255,255,0.84)',
+const heroCard = {
+  borderRadius: 28,
+  padding: 20,
+  background: 'rgba(255,255,255,0.86)',
   border: '1px solid rgba(226, 232, 240, 0.9)',
-  boxShadow: '0 30px 80px rgba(15, 23, 42, 0.12)',
-  overflow: 'hidden',
-  backdropFilter: 'blur(18px)'
+  boxShadow: '0 28px 70px rgba(15, 23, 42, 0.10)'
 }
 
-const mockTopBar = {
-  display: 'flex',
-  gap: 8,
-  alignItems: 'center',
-  padding: 14,
-  borderBottom: '1px solid #e2e8f0',
-  background: 'rgba(248, 250, 252, 0.96)'
+const heroCardHeader = {
+  fontSize: 14,
+  fontWeight: 800,
+  color: '#475569',
+  marginBottom: 14
 }
 
-const mockBody = {
-  display: 'grid',
-  gridTemplateColumns: '140px 1fr',
-  minHeight: 440
-}
-
-const mockSidebar = {
-  borderRight: '1px solid #e2e8f0',
-  padding: 14,
-  background: '#f8fafc',
-  display: 'grid',
-  alignContent: 'start',
-  gap: 10
-}
-
-const mockSidebarBlock = {
-  height: 74,
-  borderRadius: 18,
-  background: 'linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)'
-}
-
-const mockSidebarLine = {
-  height: 36,
-  borderRadius: 12,
-  background: '#e2e8f0'
-}
-
-const mockMain = {
-  padding: 18,
-  display: 'grid',
-  gap: 16,
-  background: 'linear-gradient(180deg, #ffffff 0%, #f8fafc 100%)'
-}
-
-const mockHeroCard = {
-  borderRadius: 22,
-  padding: 18,
-  background: 'linear-gradient(135deg, #0f172a 0%, #1d4ed8 100%)',
-  color: '#fff'
-}
-
-const mockLabel = {
-  fontSize: 12,
-  opacity: 0.8,
-  marginBottom: 8
-}
-
-const mockHeading = {
-  fontSize: 20,
-  fontWeight: 900,
-  lineHeight: 1.2
-}
-
-const mockGrid = {
+const heroStats = {
   display: 'grid',
   gridTemplateColumns: 'repeat(3, 1fr)',
   gap: 12
 }
 
-const mockStatCard = {
+const statCard = {
   borderRadius: 18,
   padding: 14,
   border: '1px solid #e2e8f0',
   background: '#fff'
 }
 
-const mockStatLabel = {
+const statLabel = {
   fontSize: 11,
   color: '#64748b',
   marginBottom: 8
 }
 
-const mockStatValue = {
+const statValue = {
   fontSize: 24,
   fontWeight: 900,
   color: '#0f172a'
 }
 
-const mockTableCard = {
+const flowCard = {
+  marginTop: 16,
   borderRadius: 20,
   padding: 16,
   border: '1px solid #e2e8f0',
@@ -843,27 +635,27 @@ const mockTableCard = {
   gap: 12
 }
 
-const mockRow = {
+const flowRow = {
   display: 'flex',
   alignItems: 'center',
   gap: 12
 }
 
-const mockBarLong = {
+const barLong = {
   height: 12,
   flex: 1,
   borderRadius: 999,
   background: '#dbeafe'
 }
 
-const mockBarMed = {
+const barMid = {
   height: 12,
   width: '65%',
   borderRadius: 999,
   background: '#dcfce7'
 }
 
-const mockBarShort = {
+const barShort = {
   height: 12,
   width: '42%',
   borderRadius: 999,
@@ -875,7 +667,7 @@ const section = {
   gap: 18
 }
 
-const sectionIntro = {
+const sectionHeader = {
   maxWidth: 760
 }
 
@@ -893,8 +685,7 @@ const sectionTitle = {
   fontSize: 38,
   lineHeight: 1.1,
   fontWeight: 950,
-  color: '#0f172a',
-  letterSpacing: -0.8
+  color: '#0f172a'
 }
 
 const sectionText = {
@@ -904,105 +695,30 @@ const sectionText = {
   lineHeight: 1.7
 }
 
-const stepsGrid = {
+const featureGrid = {
   display: 'grid',
   gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
   gap: 16
 }
 
-const stepCard = {
+const featureCard = {
   borderRadius: 24,
   padding: 20,
-  background: 'rgba(255,255,255,0.78)',
-  border: '1px solid rgba(226, 232, 240, 0.9)',
+  background: '#fff',
+  border: '1px solid #e2e8f0',
   boxShadow: '0 18px 40px rgba(15, 23, 42, 0.05)'
 }
 
-const stepNumber = {
-  width: 44,
-  height: 44,
-  borderRadius: 14,
-  display: 'grid',
-  placeItems: 'center',
-  background: 'linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)',
-  color: '#fff',
-  fontWeight: 900,
-  fontSize: 13,
-  marginBottom: 14
-}
-
-const stepTitle = {
+const featureTitle = {
   fontSize: 18,
   fontWeight: 850,
   color: '#0f172a',
   marginBottom: 8
 }
 
-const stepText = {
+const featureText = {
   color: '#64748b',
   lineHeight: 1.6
-}
-
-const roleGrid = {
-  display: 'grid',
-  gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
-  gap: 16
-}
-
-const roleCard = {
-  borderRadius: 24,
-  padding: 20,
-  background: 'linear-gradient(180deg, #ffffff 0%, #f8fafc 100%)',
-  border: '1px solid rgba(226, 232, 240, 0.9)',
-  boxShadow: '0 18px 40px rgba(15, 23, 42, 0.05)'
-}
-
-const roleIcon = {
-  width: 52,
-  height: 52,
-  borderRadius: 16,
-  display: 'grid',
-  placeItems: 'center',
-  background: '#eff6ff',
-  fontSize: 24,
-  marginBottom: 14
-}
-
-const roleTitle = {
-  fontSize: 20,
-  fontWeight: 850,
-  color: '#0f172a',
-  marginBottom: 8
-}
-
-const roleText = {
-  color: '#64748b',
-  lineHeight: 1.65
-}
-
-const featureBanner = {
-  borderRadius: 30,
-  padding: 24,
-  background: 'linear-gradient(135deg, #ffffff 0%, #eef2ff 100%)',
-  border: '1px solid rgba(226, 232, 240, 0.9)',
-  display: 'grid',
-  gap: 18
-}
-
-const featureList = {
-  display: 'flex',
-  gap: 10,
-  flexWrap: 'wrap'
-}
-
-const featurePill = {
-  padding: '10px 14px',
-  borderRadius: 999,
-  background: '#fff',
-  border: '1px solid #dbeafe',
-  color: '#1d4ed8',
-  fontWeight: 700,
-  fontSize: 13
 }
 
 const previewGrid = {
@@ -1014,7 +730,7 @@ const previewGrid = {
 const previewCard = {
   borderRadius: 24,
   overflow: 'hidden',
-  background: '#ffffff',
+  background: '#fff',
   border: '1px solid #dbe3f0',
   boxShadow: '0 18px 40px rgba(15, 23, 42, 0.08)'
 }
@@ -1054,14 +770,14 @@ const previewCaption = {
   fontWeight: 800,
   fontSize: 18,
   color: '#0f172a',
-  background: '#ffffff'
+  background: '#fff'
 }
 
-const ctaSection = {
+const contactSection = {
   marginTop: 6
 }
 
-const ctaCard = {
+const contactCard = {
   borderRadius: 30,
   padding: 26,
   background: 'linear-gradient(135deg, #0f172a 0%, #2563eb 100%)',
@@ -1069,7 +785,7 @@ const ctaCard = {
   boxShadow: '0 30px 70px rgba(37, 99, 235, 0.18)'
 }
 
-const ctaTitle = {
+const contactTitle = {
   margin: '8px 0 0 0',
   fontSize: 36,
   lineHeight: 1.08,
@@ -1077,14 +793,14 @@ const ctaTitle = {
   maxWidth: 860
 }
 
-const ctaText = {
+const contactText = {
   marginTop: 12,
   color: 'rgba(255,255,255,0.82)',
   lineHeight: 1.65,
   maxWidth: 780
 }
 
-const contactFormWrap = {
+const form = {
   marginTop: 24,
   padding: 20,
   borderRadius: 22,
@@ -1092,10 +808,15 @@ const contactFormWrap = {
   border: '1px solid rgba(255,255,255,0.12)'
 }
 
-const contactGrid = {
+const formGrid = {
   display: 'grid',
   gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
   gap: 14
+}
+
+const fieldWrap = {
+  display: 'grid',
+  gap: 6
 }
 
 const fieldLabel = {
@@ -1104,7 +825,7 @@ const fieldLabel = {
   fontWeight: 700
 }
 
-const contactInput = {
+const input = {
   width: '100%',
   padding: '12px 14px',
   borderRadius: 14,
@@ -1114,7 +835,7 @@ const contactInput = {
   boxSizing: 'border-box'
 }
 
-const contactSelect = {
+const selectInput = {
   width: '100%',
   padding: '12px 14px',
   borderRadius: 14,
@@ -1124,18 +845,26 @@ const contactSelect = {
   appearance: 'auto'
 }
 
-const contactOption = {
+const optionStyle = {
   background: '#ffffff',
   color: '#0f172a'
 }
 
-const contactTextarea = {
-  ...contactInput,
+const textarea = {
+  ...input,
   minHeight: 110,
   resize: 'vertical'
 }
 
-const submitContactBtn = {
+const formActions = {
+  marginTop: 14,
+  display: 'flex',
+  gap: 12,
+  flexWrap: 'wrap',
+  alignItems: 'center'
+}
+
+const submitBtn = {
   background: '#fff',
   color: '#0f172a',
   border: 'none',
@@ -1145,14 +874,12 @@ const submitContactBtn = {
   fontWeight: 800
 }
 
-const contactSuccess = {
-  alignSelf: 'center',
+const successMsg = {
   color: '#bbf7d0',
   fontWeight: 700
 }
 
-const contactErrorBox = {
-  alignSelf: 'center',
+const errorMsg = {
   color: '#fecaca',
   fontWeight: 700
 }
@@ -1171,17 +898,37 @@ const footer = {
   zIndex: 2
 }
 
-const footerColumn = {
+const footerCol = {
   display: 'grid',
   gap: 8,
   minWidth: 140
 }
 
-const footerHeading = {
+const footerBrand = {
+  fontWeight: 800,
+  color: '#0f172a'
+}
+
+const footerText = {
+  marginTop: 6
+}
+
+const footerHead = {
   fontWeight: 800,
   color: '#0f172a'
 }
 
 const footerLink = {
   color: '#64748b'
+}
+
+const footerBtn = {
+  background: 'transparent',
+  border: 'none',
+  padding: 0,
+  margin: 0,
+  textAlign: 'left',
+  color: '#64748b',
+  cursor: 'pointer',
+  font: 'inherit'
 }

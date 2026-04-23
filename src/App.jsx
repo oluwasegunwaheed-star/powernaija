@@ -3,12 +3,16 @@ import { supabase } from './lib/supabaseClient'
 import DashboardRouter from './DashboardRouter'
 import AuthPage from './AuthPage'
 import LandingPage from './Pages/LandingPage'
+import PrivacyPolicy from './Pages/PrivacyPolicy'
+import TermsOfUse from './Pages/TermsOfUse'
 
 function getRoute() {
   const path = window.location.pathname.toLowerCase()
 
   if (path === '/auth') return 'auth'
   if (path === '/dashboard') return 'dashboard'
+  if (path === '/privacy-policy') return 'privacy'
+  if (path === '/terms-of-use') return 'terms'
   return 'landing'
 }
 
@@ -127,8 +131,11 @@ export default function App() {
     }
   }, [])
 
+  const openLanding = () => navigate('/')
   const openAuth = () => navigate('/auth')
   const openDashboard = () => navigate('/dashboard')
+  const openPrivacy = () => navigate('/privacy-policy')
+  const openTerms = () => navigate('/terms-of-use')
 
   if (route === 'landing') {
     return (
@@ -138,10 +145,20 @@ export default function App() {
           onGetStarted={openAuth}
           onSignIn={openAuth}
           onOpenDashboard={openDashboard}
+          onOpenPrivacy={openPrivacy}
+          onOpenTerms={openTerms}
           isLoggedIn={!!user}
         />
       </>
     )
+  }
+
+  if (route === 'privacy') {
+    return <PrivacyPolicy onBackHome={openLanding} onSignIn={openAuth} />
+  }
+
+  if (route === 'terms') {
+    return <TermsOfUse onBackHome={openLanding} onSignIn={openAuth} />
   }
 
   if (route === 'auth') {
@@ -178,6 +195,8 @@ export default function App() {
             onGetStarted={openAuth}
             onSignIn={openAuth}
             onOpenDashboard={openDashboard}
+            onOpenPrivacy={openPrivacy}
+            onOpenTerms={openTerms}
             isLoggedIn={false}
           />
         </>
@@ -213,6 +232,8 @@ export default function App() {
         onGetStarted={openAuth}
         onSignIn={openAuth}
         onOpenDashboard={openDashboard}
+        onOpenPrivacy={openPrivacy}
+        onOpenTerms={openTerms}
         isLoggedIn={!!user}
       />
     </>
